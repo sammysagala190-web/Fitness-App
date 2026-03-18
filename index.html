@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitness App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <h1>Home Workout Coach</h1>
+      <p>Bodyweight workouts, calendar tracking, adaptive difficulty, and notes.</p>
+    </header>
+
+    <section class="card stats">
+      <div>
+        <div class="label">Completed</div>
+        <div id="completedCount" class="big">0</div>
+      </div>
+      <div>
+        <div class="label">Streak</div>
+        <div id="streakCount" class="big">0</div>
+      </div>
+      <div>
+        <div class="label">This week</div>
+        <div id="weekCount" class="big">0</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Settings</h2>
+      <label>Name</label>
+      <input id="nameInput" placeholder="Your name" />
+
+      <label>Difficulty</label>
+      <div id="difficultyRow" class="chips"></div>
+
+      <label>Focus</label>
+      <div id="focusRow" class="chips"></div>
+    </section>
+
+    <section class="card">
+      <h2>Today's plan</h2>
+      <div id="planBox"></div>
+      <button id="completeBtn" class="primary">Mark today complete</button>
+      <h3>How did it feel?</h3>
+      <div id="feedbackRow" class="chips"></div>
+    </section>
+
+    <section class="card">
+      <h2>Calendar</h2>
+      <div id="monthLabel" class="month-label"></div>
+      <div class="weekday-row">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+      <div id="calendarGrid" class="calendar-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>History</h2>
+      <div id="historyList"></div>
+    </section>
+
+    <section class="card">
+      <h2>Notes</h2>
+      <textarea id="notesInput" placeholder="Write what felt good, hard, or what you want tomorrow."></textarea>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
