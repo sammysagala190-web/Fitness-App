@@ -4,6 +4,9 @@
   "focus": "Full Body",
   "notes": "",
   "sessions": {},
+  "ui": {
+    "githubSectionVisible": true
+  },
   "github": {
     "owner": "sammysagala190-web",
     "repo": "Fitness-App",
