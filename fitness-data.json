@@ -1,0 +1,16 @@
+{
+  "name": "Sam",
+  "difficultyLevel": 0,
+  "focus": "Full Body",
+  "notes": "",
+  "sessions": {},
+  "github": {
+    "owner": "sammysagala190-web",
+    "repo": "Fitness-App",
+    "branch": "main",
+    "filePath": "fitness-data.json",
+    "token": "",
+    "autoSync": true,
+    "lastSyncedAt": ""
+  }
+}
