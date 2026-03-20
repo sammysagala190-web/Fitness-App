@@ -10,7 +10,7 @@
   <div class="app">
     <header class="hero">
       <h1>Home Workout Coach</h1>
-      <p>Bodyweight workouts, calendar tracking, adaptive difficulty, and notes.</p>
+      <p>Bodyweight workouts, calendar tracking, adaptive difficulty, notes, and GitHub sync.</p>
     </header>
 
     <section class="card stats">
@@ -38,6 +38,33 @@
 
       <label>Focus</label>
       <div id="focusRow" class="chips"></div>
+
+      <h3>GitHub sync</h3>
+      <label>Owner</label>
+      <input id="githubOwnerInput" placeholder="GitHub owner" />
+
+      <label>Repository</label>
+      <input id="githubRepoInput" placeholder="Repository name" />
+
+      <label>Branch</label>
+      <input id="githubBranchInput" placeholder="main" />
+
+      <label>Data file path</label>
+      <input id="githubFilePathInput" placeholder="fitness-data.json" />
+
+      <label>Fine grained GitHub token</label>
+      <input id="githubTokenInput" type="password" placeholder="Paste token with Contents read and write access" />
+
+      <label class="checkbox-row">
+        <input id="githubAutoSyncInput" type="checkbox" />
+        <span>Auto sync after changes</span>
+      </label>
+
+      <div class="chips">
+        <button id="pushGithubBtn" class="primary">Save to GitHub</button>
+        <button id="pullGithubBtn">Restore from GitHub</button>
+      </div>
+      <div id="githubStatus" class="small">Local only, not synced yet.</div>
     </section>
 
     <section class="card">

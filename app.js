@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'fitness-app-web-v1';
+const STORAGE_KEY = 'fitness-app-web-v2';
 const difficulties = ['Beginner', 'Intermediate', 'Advanced'];
 const focuses = ['Full Body', 'Abs', 'Chest', 'Legs', 'Arms', 'Butt'];
 const feedbackOptions = ['Too Easy', 'Just Right', 'Too Hard'];
@@ -8,7 +8,16 @@ const defaultState = {
   difficultyLevel: 0,
   focus: 'Full Body',
   notes: '',
-  sessions: {}
+  sessions: {},
+  github: {
+    owner: 'sammysagala190-web',
+    repo: 'Fitness-App',
+    branch: 'main',
+    filePath: 'fitness-data.json',
+    token: '',
+    autoSync: false,
+    lastSyncedAt: ''
+  }
 };
 
 function pad(n) {
@@ -20,19 +29,166 @@ function todayKey() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+function mergeState(raw = {}) {
+  const github = { ...defaultState.github, ...(raw.github || {}) };
+  return { ...defaultState, ...raw, github };
+}
+
 function loadState() {
   try {
-    return { ...defaultState, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') };
+    return mergeState(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
   } catch {
-    return { ...defaultState };
+    return mergeState();
   }
 }
 
-function saveState() {
+function persistLocalState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function saveState({ skipAutoSync = false } = {}) {
+  persistLocalState();
+  if (!skipAutoSync && state.github.autoSync && state.github.token) {
+    scheduleGithubPush();
+  }
+}
+
 let state = loadState();
+let syncTimer = null;
+
+function getUploadableState() {
+  return {
+    ...state,
+    github: {
+      ...state.github,
+      token: ''
+    }
+  };
+}
+
+function base64EncodeUnicode(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function base64DecodeUnicode(str) {
+  return decodeURIComponent(escape(atob(str)));
+}
+
+function githubConfigIsReady() {
+  return Boolean(
+    state.github.owner &&
+    state.github.repo &&
+    state.github.branch &&
+    state.github.filePath &&
+    state.github.token
+  );
+}
+
+function setGithubStatus(message) {
+  document.getElementById('githubStatus').textContent = message;
+}
+
+async function githubRequest(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${state.github.token}`,
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `GitHub request failed with ${response.status}`);
+  }
+
+  return response.status === 204 ? null : response.json();
+}
+
+async function pushStateToGitHub() {
+  if (!githubConfigIsReady()) {
+    throw new Error('Fill owner, repo, branch, file path, and token first.');
+  }
+
+  const baseUrl = `https://api.github.com/repos/${state.github.owner}/${state.github.repo}/contents/${state.github.filePath}`;
+  let existingSha = undefined;
+
+  try {
+    const existing = await githubRequest(`${baseUrl}?ref=${encodeURIComponent(state.github.branch)}`);
+    existingSha = existing.sha;
+  } catch (error) {
+    if (!String(error.message).includes('404')) {
+      try {
+        const parsed = JSON.parse(error.message);
+        if (parsed.status !== '404') throw error;
+      } catch {
+        throw error;
+      }
+    }
+  }
+
+  const content = JSON.stringify(getUploadableState(), null, 2);
+  await githubRequest(baseUrl, {
+    method: 'PUT',
+    body: JSON.stringify({
+      message: `Update fitness data ${new Date().toISOString()}`,
+      content: base64EncodeUnicode(content),
+      branch: state.github.branch,
+      sha: existingSha
+    })
+  });
+
+  state.github.lastSyncedAt = new Date().toISOString();
+  persistLocalState();
+  setGithubStatus(`Saved to GitHub at ${new Date(state.github.lastSyncedAt).toLocaleString()}`);
+}
+
+async function pullStateFromGitHub() {
+  if (!githubConfigIsReady()) {
+    throw new Error('Fill owner, repo, branch, file path, and token first.');
+  }
+
+  const url = `https://api.github.com/repos/${state.github.owner}/${state.github.repo}/contents/${state.github.filePath}?ref=${encodeURIComponent(state.github.branch)}`;
+  const remote = await githubRequest(url);
+  const remoteState = mergeState(JSON.parse(base64DecodeUnicode(remote.content.replace(/\n/g, ''))));
+  remoteState.github = {
+    ...remoteState.github,
+    owner: state.github.owner,
+    repo: state.github.repo,
+    branch: state.github.branch,
+    filePath: state.github.filePath,
+    token: state.github.token,
+    autoSync: state.github.autoSync,
+    lastSyncedAt: new Date().toISOString()
+  };
+  state = remoteState;
+  persistLocalState();
+  render();
+  setGithubStatus(`Restored from GitHub at ${new Date(state.github.lastSyncedAt).toLocaleString()}`);
+}
+
+function scheduleGithubPush() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(async () => {
+    try {
+      setGithubStatus('Saving to GitHub...');
+      await pushStateToGitHub();
+    } catch (error) {
+      setGithubStatus(`Sync failed: ${cleanGithubError(error)}`);
+    }
+  }, 1200);
+}
+
+function cleanGithubError(error) {
+  try {
+    const parsed = JSON.parse(error.message);
+    return parsed.message || 'Unknown GitHub error';
+  } catch {
+    return error.message || 'Unknown error';
+  }
+}
 
 function getAdaptivePlan(level, focus, previousFeedback) {
   let adjustedLevel = Math.max(0, Math.min(2, level));
@@ -182,6 +338,12 @@ function renderHistory() {
 function render() {
   document.getElementById('nameInput').value = state.name;
   document.getElementById('notesInput').value = state.notes;
+  document.getElementById('githubOwnerInput').value = state.github.owner;
+  document.getElementById('githubRepoInput').value = state.github.repo;
+  document.getElementById('githubBranchInput').value = state.github.branch;
+  document.getElementById('githubFilePathInput').value = state.github.filePath;
+  document.getElementById('githubTokenInput').value = state.github.token;
+  document.getElementById('githubAutoSyncInput').checked = state.github.autoSync;
 
   renderChips('difficultyRow', difficulties, difficulties[state.difficultyLevel], value => {
     state.difficultyLevel = difficulties.indexOf(value);
@@ -214,6 +376,10 @@ function render() {
   renderStats();
   renderCalendar();
   renderHistory();
+
+  if (state.github.lastSyncedAt) {
+    setGithubStatus(`Last GitHub sync: ${new Date(state.github.lastSyncedAt).toLocaleString()}`);
+  }
 }
 
 document.getElementById('nameInput').addEventListener('input', e => {
@@ -224,6 +390,36 @@ document.getElementById('nameInput').addEventListener('input', e => {
 document.getElementById('notesInput').addEventListener('input', e => {
   state.notes = e.target.value;
   saveState();
+});
+
+document.getElementById('githubOwnerInput').addEventListener('input', e => {
+  state.github.owner = e.target.value.trim();
+  saveState({ skipAutoSync: true });
+});
+
+document.getElementById('githubRepoInput').addEventListener('input', e => {
+  state.github.repo = e.target.value.trim();
+  saveState({ skipAutoSync: true });
+});
+
+document.getElementById('githubBranchInput').addEventListener('input', e => {
+  state.github.branch = e.target.value.trim() || 'main';
+  saveState({ skipAutoSync: true });
+});
+
+document.getElementById('githubFilePathInput').addEventListener('input', e => {
+  state.github.filePath = e.target.value.trim() || 'fitness-data.json';
+  saveState({ skipAutoSync: true });
+});
+
+document.getElementById('githubTokenInput').addEventListener('input', e => {
+  state.github.token = e.target.value.trim();
+  saveState({ skipAutoSync: true });
+});
+
+document.getElementById('githubAutoSyncInput').addEventListener('change', e => {
+  state.github.autoSync = e.target.checked;
+  saveState({ skipAutoSync: true });
 });
 
 document.getElementById('completeBtn').addEventListener('click', () => {
@@ -239,6 +435,24 @@ document.getElementById('completeBtn').addEventListener('click', () => {
   };
   saveState();
   render();
+});
+
+document.getElementById('pushGithubBtn').addEventListener('click', async () => {
+  try {
+    setGithubStatus('Saving to GitHub...');
+    await pushStateToGitHub();
+  } catch (error) {
+    setGithubStatus(`Sync failed: ${cleanGithubError(error)}`);
+  }
+});
+
+document.getElementById('pullGithubBtn').addEventListener('click', async () => {
+  try {
+    setGithubStatus('Restoring from GitHub...');
+    await pullStateFromGitHub();
+  } catch (error) {
+    setGithubStatus(`Restore failed: ${cleanGithubError(error)}`);
+  }
 });
 
 render();
