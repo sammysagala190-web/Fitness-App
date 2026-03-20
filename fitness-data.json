@@ -1,11 +1,11 @@
 {
   "name": "Sam",
   "difficultyLevel": 0,
-  "focus": "Full Body",
+  "focus": "Arms",
   "notes": "",
   "sessions": {},
   "ui": {
-    "githubSectionVisible": true
+    "githubSectionVisible": false
   },
   "github": {
     "owner": "sammysagala190-web",
@@ -14,6 +14,6 @@
     "filePath": "fitness-data.json",
     "token": "",
     "autoSync": true,
-    "lastSyncedAt": ""
+    "lastSyncedAt": "2026-03-20T01:45:40.764Z"
   }
 }
