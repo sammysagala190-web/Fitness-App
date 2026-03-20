@@ -39,31 +39,38 @@
       <label>Focus</label>
       <div id="focusRow" class="chips"></div>
 
-      <h3>GitHub sync</h3>
-      <label>Owner</label>
-      <input id="githubOwnerInput" placeholder="GitHub owner" />
-
-      <label>Repository</label>
-      <input id="githubRepoInput" placeholder="Repository name" />
-
-      <label>Branch</label>
-      <input id="githubBranchInput" placeholder="main" />
-
-      <label>Data file path</label>
-      <input id="githubFilePathInput" placeholder="fitness-data.json" />
-
-      <label>Fine grained GitHub token</label>
-      <input id="githubTokenInput" type="password" placeholder="Paste token with Contents read and write access" />
-
-      <label class="checkbox-row">
-        <input id="githubAutoSyncInput" type="checkbox" />
-        <span>Auto sync after changes</span>
-      </label>
-
-      <div class="chips">
-        <button id="pushGithubBtn" class="primary">Save to GitHub</button>
-        <button id="pullGithubBtn">Restore from GitHub</button>
+      <div class="sync-header-row">
+        <h3>GitHub sync</h3>
+        <button id="toggleGithubSectionBtn" type="button" class="toggle-btn">Show</button>
       </div>
+
+      <div id="githubSyncSection" class="hidden-section">
+        <label>Owner</label>
+        <input id="githubOwnerInput" placeholder="GitHub owner" />
+
+        <label>Repository</label>
+        <input id="githubRepoInput" placeholder="Repository name" />
+
+        <label>Branch</label>
+        <input id="githubBranchInput" placeholder="main" />
+
+        <label>Data file path</label>
+        <input id="githubFilePathInput" placeholder="fitness-data.json" />
+
+        <label>Fine grained GitHub token</label>
+        <input id="githubTokenInput" type="password" placeholder="Paste token with Contents read and write access" />
+
+        <label class="checkbox-row">
+          <input id="githubAutoSyncInput" type="checkbox" />
+          <span>Auto sync after changes</span>
+        </label>
+
+        <div class="chips">
+          <button id="pushGithubBtn" class="primary">Save to GitHub</button>
+          <button id="pullGithubBtn">Restore from GitHub</button>
+        </div>
+      </div>
+
       <div id="githubStatus" class="small">Local only, not synced yet.</div>
     </section>
 

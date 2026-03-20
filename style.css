@@ -139,6 +139,37 @@ textarea {
   color: #6b7280;
   font-size: 0.9rem;
 }
+.sync-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.sync-header-row h3 {
+  margin: 0;
+}
+.toggle-btn {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #111827;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 600;
+}
+.hidden-section {
+  display: none;
+}
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.checkbox-row input {
+  width: auto;
+  margin: 0;
+}
 @media (max-width: 560px) {
   .stats {
     grid-template-columns: 1fr;

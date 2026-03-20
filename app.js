@@ -9,6 +9,9 @@ const defaultState = {
   focus: 'Full Body',
   notes: '',
   sessions: {},
+  ui: {
+    githubSectionVisible: false
+  },
   github: {
     owner: 'sammysagala190-web',
     repo: 'Fitness-App',
@@ -31,7 +34,8 @@ function todayKey() {
 
 function mergeState(raw = {}) {
   const github = { ...defaultState.github, ...(raw.github || {}) };
-  return { ...defaultState, ...raw, github };
+  const ui = { ...defaultState.ui, ...(raw.ui || {}) };
+  return { ...defaultState, ...raw, github, ui };
 }
 
 function loadState() {
@@ -86,6 +90,18 @@ function githubConfigIsReady() {
 
 function setGithubStatus(message) {
   document.getElementById('githubStatus').textContent = message;
+}
+
+function updateGithubSectionUI() {
+  const section = document.getElementById('githubSyncSection');
+  const btn = document.getElementById('toggleGithubSectionBtn');
+  if (state.ui.githubSectionVisible) {
+    section.classList.remove('hidden-section');
+    btn.textContent = 'Hide';
+  } else {
+    section.classList.add('hidden-section');
+    btn.textContent = 'Show';
+  }
 }
 
 async function githubRequest(url, options = {}) {
@@ -376,6 +392,7 @@ function render() {
   renderStats();
   renderCalendar();
   renderHistory();
+  updateGithubSectionUI();
 
   if (state.github.lastSyncedAt) {
     setGithubStatus(`Last GitHub sync: ${new Date(state.github.lastSyncedAt).toLocaleString()}`);
@@ -390,6 +407,12 @@ document.getElementById('nameInput').addEventListener('input', e => {
 document.getElementById('notesInput').addEventListener('input', e => {
   state.notes = e.target.value;
   saveState();
+});
+
+document.getElementById('toggleGithubSectionBtn').addEventListener('click', () => {
+  state.ui.githubSectionVisible = !state.ui.githubSectionVisible;
+  saveState({ skipAutoSync: true });
+  updateGithubSectionUI();
 });
 
 document.getElementById('githubOwnerInput').addEventListener('input', e => {
