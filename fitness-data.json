@@ -1,7 +1,7 @@
 {
   "name": "Sam",
   "difficultyLevel": 0,
-  "focus": "Arms",
+  "focus": "Abs",
   "notes": "",
   "sessions": {
     "2026-03-19": {
@@ -10,6 +10,13 @@
       "routineTitle": "Beginner Arms Session",
       "durationMin": 16,
       "focus": "Arms"
+    },
+    "2026-03-21": {
+      "date": "2026-03-21",
+      "completed": true,
+      "routineTitle": "Beginner Abs Session",
+      "durationMin": 16,
+      "focus": "Abs"
     }
   },
   "ui": {
