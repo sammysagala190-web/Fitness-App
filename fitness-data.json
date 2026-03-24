@@ -1,7 +1,7 @@
 {
   "name": "Sam",
   "difficultyLevel": 0,
-  "focus": "Abs",
+  "focus": "Full Body",
   "notes": "",
   "sessions": {
     "2026-03-19": {
@@ -17,6 +17,13 @@
       "routineTitle": "Beginner Abs Session",
       "durationMin": 16,
       "focus": "Abs"
+    },
+    "2026-03-23": {
+      "date": "2026-03-23",
+      "completed": true,
+      "routineTitle": "Beginner Full Body Session",
+      "durationMin": 16,
+      "focus": "Full Body"
     }
   },
   "ui": {
@@ -29,6 +36,6 @@
     "filePath": "fitness-data.json",
     "token": "",
     "autoSync": true,
-    "lastSyncedAt": "2026-03-20T01:54:26.286Z"
+    "lastSyncedAt": "2026-03-21T23:59:55.307Z"
   }
 }
